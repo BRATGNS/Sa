@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sana Bir Sürprizim Var</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #2b102f 0%, #120717 60%, #09030c 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Arka plan parıltıları */
+    .bg-glow {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255, 105, 180, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(30px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ekran geçişleri */
+    .screen {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 440px;
+      text-align: center;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .hidden {
+      display: none !important;
+      opacity: 0;
+    }
+
+    /* 1. ŞİFRE EKRANI */
+    .lock-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 182, 193, 0.25);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .lock-icon {
+      font-size: 42px;
+      margin-bottom: 14px;
+    }
+
+    .lock-card h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #ffe4ec;
+    }
+
+    .lock-card p {
+      font-size: 14px;
+      color: #d8b4c4;
+      margin-bottom: 22px;
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 182, 193, 0.35);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .password-input:focus {
+      border-color: #ff69b4;
+    }
+
+    .btn-unlock {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ff5e9c, #ff2a7a);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 42, 122, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-unlock:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(255, 42, 122, 0.5);
+    }
+
+    .error-msg {
+      color: #ff7b9c;
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 18px;
+    }
+
+    .shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-6px); }
+    }
+
+    /* 2. PEMBE HEDİYE KUTUSU EKRANI */
+    .gift-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gift-hint {
+      font-size: 17px;
+      color: #ffd1e1;
+      margin-bottom: 45px;
+      animation: pulseText 2s infinite;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.75; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+
+    .gift-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      cursor: pointer;
+      animation: floatBox 3s ease-in-out infinite;
+    }
+
+    @keyframes floatBox {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Kutu Gövdesi */
+    .box-body {
+      position: absolute;
+      bottom: 0;
+      left: 15px;
+      width: 140px;
+      height: 115px;
+      background: linear-gradient(145deg, #ff7eb3, #ff4785);
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 18px 35px rgba(255, 71, 133, 0.45);
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    /* Dikey Kurdele */
+    .box-body::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 100%;
+      background: linear-gradient(180deg, #fff0f5, #ffc2d6);
+    }
+
+    /* Kutu Kapağı */
+    .box-lid {
+      position: absolute;
+      top: 22px;
+      left: 7px;
+      width: 156px;
+      height: 36px;
+      background: linear-gradient(145deg, #ff94c2, #ff5994);
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+      z-index: 3;
+      transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease;
+    }
+
+    .box-lid::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 100%;
+      background: #ffe3ed;
+    }
+
+    /* Fiyonk */
+    .bow-left, .bow-right {
+      position: absolute;
+      top: -18px;
+      width: 34px;
+      height: 24px;
+      border: 6px solid #ffe3ed;
+      border-radius: 50% 50% 0 50%;
+    }
+
+    .bow-left {
+      left: 44px;
+      transform: rotate(25deg);
+    }
+
+    .bow-right {
+      right: 44px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-25deg);
+    }
+
+    /* Kutu Açılma Animasyonu */
+    .gift-wrapper.opened {
+      animation: none;
+    }
+
+    .gift-wrapper.opened .box-lid {
+      transform: translateY(-95px) rotate(-18deg) scale(1.05);
+      opacity: 0;
+    }
+
+    /* 3. MEKTUP EKRANI */
+    .letter-card {
+      background: rgba(255, 245, 248, 0.96);
+      color: #2d1822;
+      border-radius: 24px;
+      padding: 32px 26px;
+      text-align: left;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      border: 2px solid #ffb6c1;
+      animation: popUpLetter 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes popUpLetter {
+      0% { opacity: 0; transform: translateY(40px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .letter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f3d1dc;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .letter-header span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c94a7c;
+      letter-spacing: 0.5px;
+    }
+
+    .letter-body p {
+      font-size: 15.5px;
+      line-height: 1.65;
+      margin-bottom: 14px;
+      color: #3a202c;
+    }
+
+    .letter-body p:last-child {
+      margin-bottom: 0;
+      font-weight: 600;
+      color: #b8326a;
+    }
+
+    /* Uçuşan Kalpler & Konfeti Canvas */
+    #effects-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow" style="top: 10%; left: 15%;"></div>
+  <div class="bg-glow" style="bottom: 10%; right: 15%;"></div>
+
+  <!-- 1. AŞAMA: ŞİFRE EKRANI -->
+  <div id="lock-screen" class="screen">
+    <div class="lock-card" id="lock-card">
+      <div class="lock-icon">🔒</div>
+      <h1>Sana Bir Sürprizim Var</h1>
+      <p>Devam etmek için özel tarihi gir</p>
+      <input
+        type="text"
+        id="password-input"
+        class="password-input"
+        placeholder="GG.AA.YYYY"
+        maxlength="10"
+        autocomplete="off"
+      />
+      <button class="btn-unlock" onclick="checkPassword()">Kilidi Aç</button>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+  </div>
+
+  <!-- 2. AŞAMA: PEMBE HEDİYE KUTUSU -->
+  <div id="gift-screen" class="screen hidden">
+    <div class="gift-stage">
+      <div class="gift-hint">Kutuya dokun ve aç ✨</div>
+      <div class="gift-wrapper" id="gift-box" onclick="openGift()">
+        <div class="box-lid">
+          <div class="bow-left"></div>
+          <div class="bow-right"></div>
+        </div>
+        <div class="box-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. AŞAMA: MEKTUP EKRANI -->
+  <div id="letter-screen" class="screen hidden">
+    <div class="letter-card">
+      <div class="letter-header">
+        <span>💌 SANA KÜÇÜK BİR NOT</span>
+        <span>12.11.2026</span>
+      </div>
+      <div class="letter-body">
+        <p>
+          Aslında daha birbirimizi tanıyalı çok olmadı ama yine de sana küçük bi sürpriz yapmak istedim. Belki biraz erken diyebilirsin ama olsun :) Amacım sadece yüzünde küçük bi gülümseme oluşturmak.
+        </p>
+        <p>
+          Şimdilik birbirimizi tanıyoruz, sohbet ediyoruz. Bakalım zaman bize neler gösterecek. Her şeyin aceleye gelmesine gerek yok bence. Umarım daha çok konuşur, güzel anılar biriktiririz.
+        </p>
+        <p>
+          Kısacası bunu görünce bi gülümsesen yeter bana. 🤍
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="effects-canvas"></canvas>
+
+  <script>
+    const CORRECT_PASSWORD = "12.11.2026";
+    const passwordInput = document.getElementById("password-input");
+    const errorMsg = document.getElementById("error-msg");
+    const lockCard = document.getElementById("lock-card");
+
+    // Enter tuşu desteği
+    passwordInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        checkPassword();
+      }
+    });
+
+    function checkPassword() {
+      const val = passwordInput.value.trim();
+      if (val === CORRECT_PASSWORD) {
+        errorMsg.textContent = "";
+        document.getElementById("lock-screen").classList.add("hidden");
+        document.getElementById("gift-screen").classList.remove("hidden");
+      } else {
+        errorMsg.textContent = "Şifre yanlış, tekrar dene (İpucu: 12.11.2026)";
+        lockCard.classList.remove("shake");
+        void lockCard.offsetWidth; // Reflow tetikle
+        lockCard.classList.add("shake");
+      }
+    }
+
+    let isOpened = false;
+    function openGift() {
+      if (isOpened) return;
+      isOpened = true;
+
+      const giftBox = document.getElementById("gift-box");
+      giftBox.classList.add("opened");
+      startCelebration();
+
+      setTimeout(() => {
+        document.getElementById("gift-screen").classList.add("hidden");
+        document.getElementById("letter-screen").classList.remove("hidden");
+      }, 950);
+    }
+
+    // Kalpler ve Konfeti Efekti
+    const canvas = document.getElementById("effects-canvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let animationRunning = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function createParticles() {
+      const colors = ["#ff4d8d", "#ff85b3", "#ffd1e1", "#ffffff", "#ff2a7a", "#ffb703"];
+      for (let i = 0; i < 95; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 120,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 1) * 14 - 2,
+          size: Math.random() * 10 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          type: Math.random() > 0.45 ? "heart" : "confetti",
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.15,
+          gravity: 0.22
+        });
+      }
+    }
+
+    function drawHeart(x, y, size, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      const topCurveHeight = size * 0.3;
+      ctx.moveTo(0, topCurveHeight);
+      ctx.bezierCurveTo(0, 0, -size / 2, 0, -size / 2, topCurveHeight);
+      ctx.bezierCurveTo(-size / 2, (size + topCurveHeight) / 2, 0, (size + topCurveHeight) / 1.4, 0, size);
+      ctx.bezierCurveTo(0, (size + topCurveHeight) / 1.4, size / 2, (size + topCurveHeight) / 2, size / 2, topCurveHeight);
+      ctx.bezierCurveTo(size / 2, 0, 0, 0, 0, topCurveHeight);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function animateParticles() {
+      if (!animationRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.rotSpeed;
+
+        if (p.type === "heart") {
+          drawHeart(p.x, p.y, p.size, p.color);
+        } else {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          ctx.restore();
+        }
+      });
+
+      particles = particles.filter((p) => p.y < canvas.height + 40);
+
+      if (particles.length > 0) {
+        requestAnimationFrame(animateParticles);
+      } else {
+        animationRunning = false;
+      }
+    }
+
+    function startCelebration() {
+      createParticles();
+      if (!animationRunning) {
+        animationRunning = true;
+        animateParticles();
+      }
+    }
+  </script>
+</body>
+</html>
